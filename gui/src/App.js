@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import Highlighter from 'react-highlight-words';
 
 function App() {
 
   const [input, setInput] = useState();
+
   const [results, setResults] = useState([]);
+  const [searchWords, setSearchWords] = useState([]);
+
+  const [showDocument, setShowDocument] = useState(false);
+
+  const [selectedDocId, setSelectedDocId] = useState();
+  const [selectedDoc, setSelectedDoc] = useState({});
 
   function camelize(str) {
-    let result = str.replace( /([A-Z])/g, "$1" );
-    let finalResult = result.charAt(0).toUpperCase() + result.slice(1);
-    return finalResult;
+    if(str) {
+      let result = str.replace( /([A-Z])/g, "$1" );
+      let finalResult = result.charAt(0).toUpperCase() + result.slice(1);
+      return finalResult;
+    }
   }
 
-  const handleKeyDown = (event) => {
+  function handleKeyDown(event) {
     if (event.key === 'Enter') {
-      fetch('http://localhost:5000?query='+input)
+      fetch('http://localhost:5000/query?query='+input)
       .then(res => {
         return res.json();
       })
       .then(res_json => {
-        setResults(res_json.data);
+        setResults(res_json.results);
+        setSearchWords(res_json.search_words);
       })
       .catch(err => {
         console.log(err);
@@ -27,14 +38,46 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    if(selectedDocId) {
+      fetch('http://localhost:5000/document?doc_id='+selectedDocId)
+      .then(res => res.json())
+      .then(res_json => {
+        console.log(res_json);
+        setSelectedDoc(res_json);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    }
+  }, [selectedDocId]);
+
   function renderResults() {
     if(results.length > 0) {
       return results.map((result, i) => {
-        console.log(result)
         return (
           <div className="result mb-4">
-            <p className="lead text-white">{result.doc_id}. {camelize(result.doc_name)}</p>
-            <span className="snippet text-white">...{result.doc_snippet}...</span>
+            <p className="lead text-white" href="#">
+              {result.doc_id}.
+              <a
+                href="#" 
+                className="text-white" 
+                onClick={(e) => {
+                  e.preventDefault()
+                  setShowDocument(true);
+                  setSelectedDocId(result.doc_id)
+                }}>
+                  {camelize(result.doc_name)}
+              </a>
+            </p>
+            {result.doc_snippet && (
+              <span className="snippet text-white">
+                <Highlighter
+                  searchWords={searchWords}
+                  textToHighlight={`...${result.doc_snippet}...`}
+                />
+              </span>
+            )}
           </div>
         );
       })
@@ -46,16 +89,41 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>
+        <h1 class="display-4">
           Short Stories
         </h1>
-        <div className="col-lg-8 content">
-          <div className="form-floating mb-3">
-            <input type="text" className="form-control" id="floatingInput" onKeyDown={handleKeyDown} onChange={e => setInput(e.target.value)} autoFocus />
-            <label htmlFor="floatingInput">query</label>
+        {!showDocument && (
+          <div className="col-lg-8 content">
+            <div className="form-floating mb-3">
+              <input type="text" className="form-control" id="floatingInput" onKeyDown={handleKeyDown} onChange={e => setInput(e.target.value)} autoFocus />
+              <label style={{color: "#282c34"}} htmlFor="floatingInput">query + enter</label>
+            </div>
+            {renderResults()}
           </div>
-          {renderResults()}
-        </div>
+        )}
+        {showDocument && selectedDoc.doc_name && (
+          <>
+            <a className="text-white" href="#" onClick={(e) => {
+              e.preventDefault();
+              setShowDocument(false);
+              setSelectedDoc({doc_name: "", doc: ""})
+            }}>Back</a>
+            <h3>
+              {selectedDoc.doc_name}  
+            </h3>
+            <div className="col-lg-10 content">
+              <p style={{textAlign: "justify"}}>
+              <Highlighter
+                  searchWords={searchWords}
+                  textToHighlight={`${selectedDoc.doc}`}
+                />
+              </p>
+            </div>
+          </>
+        )}
+        {showDocument && !selectedDoc.doc_name && (
+          <p>Loading..</p>
+        )}
       </header>
     </div>
   );

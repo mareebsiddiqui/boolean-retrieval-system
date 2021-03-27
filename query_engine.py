@@ -8,40 +8,50 @@ with open('./index.json', 'r') as f:
 
 def search(term):
   term = singularize(term)
-  result = []
   if term in index:
-    for doc in index[term]:
-      result.append({
-        "doc_id": doc["doc_id"],
-        "doc_name": doc["doc_name"],
-        "doc_snippet": doc["doc_snippet"],
-        "positions": doc["positions"]
-      })
-  return result
+    return index[term], term
+  else:
+    return [], ""
+
+def intersect_two(l1, l2):
+  p1 = 0
+  p2 = 0
+
+  relevant_docs = []
+
+  while p1 < len(l1):
+    while p2 < len(l2):
+      if(l1[p1]["doc_id"] == l2[p2]["doc_id"]):
+        relevant_docs.append(l2[p2])
+        p2 += 1
+        break
+      elif(l1[p1]["doc_id"] < l2[p2]["doc_id"]):
+        break
+      p2 += 1
+    p1 += 1
+  
+  return relevant_docs
 
 def intersect(results):
-  intersection = []
   n = len(results)
-  if n > 1:
-    results = [item for result in results for item in result]
-    freqs = {}
-    for doc in results:
-      if doc["doc_id"] in freqs:
-        freqs[doc["doc_id"]] += 1
-        if(freqs[doc["doc_id"]] == n):
-          intersection.append(doc)
-      else:
-        freqs[doc["doc_id"]] = 1
+  if(n > 1):
+    i = 2
+    intersection = intersect_two(results[0], results[1])
+    while i < n:
+      intersection = intersect_two(intersection, results[i])
+      i += 1
+    return intersection
   else:
-    intersection = [item for result in results for item in result]
-
-  return intersection
+    return results[0]
 
 def proximity_search(k, terms):
   k += 1
   result = []
-  l1 = index[singularize(terms[0])]
-  l2 = index[singularize(terms[1])]
+  proximities = []
+  t1 = singularize(terms[0])
+  t2 = singularize(terms[1])
+  l1 = index[t1]
+  l2 = index[t2]
   p1 = 0
   p2 = 0
 
@@ -53,13 +63,13 @@ def proximity_search(k, terms):
       pos_pairs = []
       while pp1 < len(l1[p1]["positions"]):
         while pp2 < len(l2[p2]["positions"]):
-          if abs(l1[p1]["positions"][pp1]["position"] - l2[p2]["positions"][pp2]["position"]) == k:
+          if abs(l1[p1]["positions"][pp1] - l2[p2]["positions"][pp2]) == k:
             l.append(l2[p2]["positions"][pp2])
-          elif l2[p2]["positions"][pp2]["position"] > l1[p1]["positions"][pp1]["position"]:
+          elif l2[p2]["positions"][pp2] > l1[p1]["positions"][pp1]:
             break
           
           pp2 += 1
-        while l and abs(l[0]["position"] - l1[p1]["positions"][pp1]["position"]) > k:
+        while l and abs(l[0] - l1[p1]["positions"][pp1]) > k:
           l.remove(l[0])
         for position in l:
           pos_pairs.append([l1[p1]["positions"][pp1], position])
@@ -68,8 +78,13 @@ def proximity_search(k, terms):
       if pos_pairs:
         result.append({
           "doc_id": l1[p1]["doc_id"],
-          "positions": pos_pairs
+          "doc_name": l1[p1]["doc_name"],
+          "doc_snippet": l1[p1]["doc_snippet"],
+          "positions": l1[p1]["positions"]
         })
+        t1_pos = l1[p1]["doc_snippet"].find(t1)
+        t2_pos = l1[p1]["doc_snippet"].find(t2)
+        proximities.append(l1[p1]["doc_snippet"][t1_pos:t2_pos+len(t2)])
 
       p1 += 1
       p2 += 1
@@ -78,35 +93,60 @@ def proximity_search(k, terms):
     else:
       p2 += 1
   
-  return result
+  return result, proximities
+
+def get_complement(search_fn, params):
+  docs, terms = search_fn(*params)
+  all_docs, terms = search('*')
+
+  if(len(docs) < 1):
+    return all_docs
+  else:
+    p1 = 0
+    p2 = 0
+
+    relevant_docs = []
+
+    while p1 < len(docs):
+      while p2 < len(all_docs):
+        if(docs[p1]["doc_id"] > all_docs[p2]["doc_id"]):
+          relevant_docs.append(all_docs[p2])
+        elif(docs[p1]["doc_id"] < all_docs[p2]["doc_id"]):
+          break
+        p2 += 1
+      p1 += 1
+    
+    return relevant_docs
 
 def query(query):
   and_terms = query.split(" and ")
   
   results = []
+  words = []
   
   for term in and_terms:
     term = term.split(" /")
     if len(term) > 1:
       proximity = int(term[1])
       proximity_terms = term[0].split(" ")
-      results.append(proximity_search(proximity, proximity_terms))
+      if("not " in term[0]):
+        proximity_terms = [t.split("not ")[1] for t in term[0].split(" ")]
+        results.append(get_complement(proximity_search, [proximity, proximity_terms]))
+      else:
+        search_results, terms = proximity_search(proximity, proximity_terms)
+        results.append(search_results)
+        words.append(terms)
     else:
       term = term[0]
       if("not " in term):
         term = term.split("not ")[1]
-        docs = search(term)
-        all_ids = [i for i in range(1, 51)]
-        for doc in docs:
-          if doc["doc_id"] in all_ids:
-            all_ids.remove(doc["doc_id"])
-        
-        relevant_docs = [{"doc_id": i} for i in all_ids]
-        results.append(relevant_docs)
+        results.append(get_complement(search, [term]))
       else:
-        results.append(search(term))
+        search_results, terms = search(term)
+        words.append(terms)
+        results.append(search_results)
 
-  return intersect(results)
+  return intersect(results), words
 
 
   # print(results)

@@ -6,9 +6,25 @@ CORS(app)
 
 import query_engine
 
-@app.route('/')
-def hello_world():
+@app.route('/query')
+def get_query_results():
     query = request.args.get('query')
+    query, search_words = query_engine.query(query)
     return {
-        "data": query_engine.query(query)
+        "results": query,
+        "search_words": search_words
     }
+
+@app.route('/document')
+def get_document():
+    doc_id = request.args.get('doc_id')
+    doc = None
+    with open('./ShortStories/{doc_id}.txt'.format(doc_id = doc_id)) as f:
+        doc_name = f.readline().strip()
+        doc = f.read()
+
+    return {
+        "doc_name": doc_name,
+        "doc": doc
+    }
+    

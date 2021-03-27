@@ -13,12 +13,8 @@
   padding: 10vh 0;
 }
 
-.App-header > h1 {
-  font-size: calc(10px + 2vmin);
-}
-
 .content {
-  color: #282c34;
+  color: white;
   text-align: left;
 }
 
