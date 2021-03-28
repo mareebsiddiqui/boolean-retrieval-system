@@ -24,17 +24,25 @@ function App() {
 
   function handleKeyDown(event) {
     if (event.key === 'Enter') {
-      fetch('http://localhost:5000/query?query='+input)
-      .then(res => {
-        return res.json();
-      })
-      .then(res_json => {
-        setResults(res_json.results);
-        setSearchWords(res_json.search_words);
-      })
-      .catch(err => {
-        console.log(err);
-      })
+      if(input) {
+        fetch('http://localhost:5000/query?query='+input)
+        .then(res => {
+          return res.json();
+        })
+        .then(res_json => {
+          setResults(res_json.results);
+          setSearchWords(res_json.search_words);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+      } else {
+        setResults([]);
+        setSearchWords([]);
+        setShowDocument(false);
+        setSelectedDocId();
+        setSelectedDoc({});
+      }
     }
   }
 
@@ -43,7 +51,7 @@ function App() {
       fetch('http://localhost:5000/document?doc_id='+selectedDocId)
       .then(res => res.json())
       .then(res_json => {
-        console.log(res_json);
+        setSelectedDoc({});
         setSelectedDoc(res_json);
       })
       .catch(err => {
@@ -89,15 +97,17 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <h6 class="text-muted">M. Areeb Siddiqui - k181062</h6>
         <h1 class="display-4">
           Short Stories
         </h1>
         {!showDocument && (
           <div className="col-lg-8 content">
             <div className="form-floating mb-3">
-              <input type="text" className="form-control" id="floatingInput" onKeyDown={handleKeyDown} onChange={e => setInput(e.target.value)} autoFocus />
+              <input type="text" className="form-control" value={input} id="floatingInput" onKeyDown={handleKeyDown} onChange={e => setInput(e.target.value)} autoFocus />
               <label style={{color: "#282c34"}} htmlFor="floatingInput">query + enter</label>
             </div>
+            <hr/>
             {renderResults()}
           </div>
         )}
@@ -106,7 +116,6 @@ function App() {
             <a className="text-white" href="#" onClick={(e) => {
               e.preventDefault();
               setShowDocument(false);
-              setSelectedDoc({doc_name: "", doc: ""})
             }}>Back</a>
             <h3>
               {selectedDoc.doc_name}  
@@ -115,7 +124,7 @@ function App() {
               <p style={{textAlign: "justify"}}>
               <Highlighter
                   searchWords={searchWords}
-                  textToHighlight={`${selectedDoc.doc}`}
+                  textToHighlight={selectedDoc.doc}
                 />
               </p>
             </div>

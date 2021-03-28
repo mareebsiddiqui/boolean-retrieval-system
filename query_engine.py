@@ -23,7 +23,6 @@ def intersect_two(l1, l2):
     while p2 < len(l2):
       if(l1[p1]["doc_id"] == l2[p2]["doc_id"]):
         relevant_docs.append(l2[p2])
-        p2 += 1
         break
       elif(l1[p1]["doc_id"] < l2[p2]["doc_id"]):
         break
@@ -111,10 +110,15 @@ def get_complement(search_fn, params):
       while p2 < len(all_docs):
         if(docs[p1]["doc_id"] > all_docs[p2]["doc_id"]):
           relevant_docs.append(all_docs[p2])
-        elif(docs[p1]["doc_id"] < all_docs[p2]["doc_id"]):
+        elif(docs[p1]["doc_id"] == all_docs[p2]["doc_id"]):
+          p2 += 1
           break
         p2 += 1
       p1 += 1
+    
+    while p2 < len(all_docs):
+      relevant_docs.append(all_docs[p2])
+      p2 += 1
     
     return relevant_docs
 
@@ -128,11 +132,12 @@ def query(query):
     term = term.split(" /")
     if len(term) > 1:
       proximity = int(term[1])
-      proximity_terms = term[0].split(" ")
       if("not " in term[0]):
-        proximity_terms = [t.split("not ")[1] for t in term[0].split(" ")]
+        proximity_terms = term[0].split("not ")[1]
+        proximity_terms = proximity_terms.split(" ")
         results.append(get_complement(proximity_search, [proximity, proximity_terms]))
       else:
+        proximity_terms = term[0].split(" ")
         search_results, terms = proximity_search(proximity, proximity_terms)
         results.append(search_results)
         words.append(terms)
