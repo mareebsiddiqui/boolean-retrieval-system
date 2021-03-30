@@ -46,6 +46,9 @@ def get_postfix(infix):
 
 def query(query):
 
+  query = query.lower()
+  query = re.sub(r'-', r'', query)
+
   postfix = get_postfix(query)
 
   if len(postfix) > 1:
