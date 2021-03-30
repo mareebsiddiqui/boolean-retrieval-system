@@ -25,7 +25,7 @@ function App() {
   function handleKeyDown(event) {
     if (event.key === 'Enter') {
       if(input) {
-        fetch('http://localhost:5000/query?query='+input)
+        fetch('http://34.228.23.67:5000/query?query='+input)
         .then(res => {
           return res.json();
         })
@@ -48,7 +48,7 @@ function App() {
 
   useEffect(() => {
     if(selectedDocId) {
-      fetch('http://localhost:5000/document?doc_id='+selectedDocId)
+      fetch('http://34.228.23.67:5000/document?doc_id='+selectedDocId)
       .then(res => res.json())
       .then(res_json => {
         setSelectedDoc({});
