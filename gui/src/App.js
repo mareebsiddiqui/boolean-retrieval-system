@@ -85,6 +85,7 @@ function App() {
                   e.preventDefault()
                   setShowDocument(true);
                   setSelectedDocId(result.doc_id);
+                  setSelectedDoc({});
                 }}>
                   {camelize(docIndex[result.doc_id])}
               </a>
