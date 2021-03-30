@@ -1,5 +1,6 @@
 import os
 import re
+import string
 from search_utils import search, proximity_search
 from boolean_utils import conjunct, disjunct
 from set_utils import complement
@@ -44,9 +45,13 @@ def get_postfix(infix):
     
   return postfix
 
+punctuation = list(set(string.punctuation))
+punctuation.remove('/')
+punctuation.remove('(')
+punctuation.remove(')')
 def query(query):
-
   query = query.lower()
+  query = ''.join(filter(lambda x: x not in punctuation, query))
   query = re.sub(r'-', r'', query)
 
   postfix = get_postfix(query)
