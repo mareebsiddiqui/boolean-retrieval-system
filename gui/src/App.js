@@ -4,6 +4,8 @@ import Highlighter from 'react-highlight-words';
 
 function App() {
 
+  const [docIndex, setDocIndex] = useState({});
+
   const [input, setInput] = useState();
 
   const [results, setResults] = useState([]);
@@ -13,6 +15,18 @@ function App() {
 
   const [selectedDocId, setSelectedDocId] = useState();
   const [selectedDoc, setSelectedDoc] = useState({});
+
+  const SERVER_URL = 'http://localhost:5000/';
+  // const SERVER_URL = 'http://34.228.23.67:41697/';
+
+  useEffect(() => {
+    fetch(`${SERVER_URL}/doc_index`)
+    .then(res => res.json())
+    .then(res_json => {
+      console.log(res_json)
+      setDocIndex(res_json);
+    });
+  }, []);
 
   function camelize(str) {
     if(str) {
@@ -25,10 +39,8 @@ function App() {
   function handleKeyDown(event) {
     if (event.key === 'Enter') {
       if(input) {
-        fetch('http://34.228.23.67:5000/query?query='+input)
-        .then(res => {
-          return res.json();
-        })
+        fetch(`${SERVER_URL}/query?query=`+input)
+        .then(res => res.json())
         .then(res_json => {
           setResults(res_json.results);
           setSearchWords(res_json.search_words);
@@ -48,10 +60,9 @@ function App() {
 
   useEffect(() => {
     if(selectedDocId) {
-      fetch('http://34.228.23.67:5000/document?doc_id='+selectedDocId)
+      fetch(`${SERVER_URL}/document?doc_id=`+selectedDocId)
       .then(res => res.json())
       .then(res_json => {
-        setSelectedDoc({});
         setSelectedDoc(res_json);
       })
       .catch(err => {
@@ -73,9 +84,9 @@ function App() {
                 onClick={(e) => {
                   e.preventDefault()
                   setShowDocument(true);
-                  setSelectedDocId(result.doc_id)
+                  setSelectedDocId(result.doc_id);
                 }}>
-                  {camelize(result.doc_name)}
+                  {camelize(docIndex[result.doc_id])}
               </a>
             </p>
             {result.doc_snippet && (
@@ -97,8 +108,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h6 class="text-muted">M. Areeb Siddiqui - k181062</h6>
-        <h1 class="display-4">
+        <h6 className="text-muted">M. Areeb Siddiqui - k181062</h6>
+        <h1 className="display-4">
           Short Stories
         </h1>
         {!showDocument && (
