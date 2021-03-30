@@ -36,3 +36,6 @@ def get_doc_index():
         doc_index = json.load(file)
 
     return doc_index
+
+if __name__=='__main__':
+    app.run(host='0.0.0.0', port=5000)
