@@ -9,7 +9,10 @@ function App() {
   const [input, setInput] = useState();
 
   const [results, setResults] = useState([]);
+  
   const [searchWords, setSearchWords] = useState([]);
+
+  const [status, setStatus] = useState("No results.");
 
   const [showDocument, setShowDocument] = useState(false);
 
@@ -23,7 +26,6 @@ function App() {
     fetch(`${SERVER_URL}/doc_index`)
     .then(res => res.json())
     .then(res_json => {
-      console.log(res_json)
       setDocIndex(res_json);
     });
   }, []);
@@ -39,11 +41,15 @@ function App() {
   function handleKeyDown(event) {
     if (event.key === 'Enter') {
       if(input) {
+        setStatus("Loading...");
+        setResults([]);
+        setSearchWords([]);
         fetch(`${SERVER_URL}/query?query=`+input)
         .then(res => res.json())
         .then(res_json => {
           setResults(res_json.results);
           setSearchWords(res_json.search_words);
+          setStatus("No results.");
         })
         .catch(err => {
           console.log(err);
@@ -102,7 +108,7 @@ function App() {
         );
       })
     } else {
-      return <p className="text-white">No results.</p>
+      return <p className="text-white">{status}</p>
     }
   }
 
