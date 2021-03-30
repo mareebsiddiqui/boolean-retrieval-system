@@ -16,8 +16,8 @@ function App() {
   const [selectedDocId, setSelectedDocId] = useState();
   const [selectedDoc, setSelectedDoc] = useState({});
 
-  const SERVER_URL = 'http://localhost:5000/';
-  // const SERVER_URL = 'http://34.228.23.67:41697/';
+  //const SERVER_URL = 'http://localhost:5000/';
+  const SERVER_URL = 'http://34.228.23.67:5000/';
 
   useEffect(() => {
     fetch(`${SERVER_URL}/doc_index`)
