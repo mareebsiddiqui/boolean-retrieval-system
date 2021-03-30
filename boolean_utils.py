@@ -33,7 +33,7 @@ def disjunct(term1, term2):
     words.append(terms)
     lists.append(p1)
   else:
-    docs, terms = term2
+    docs, terms = term1
     lists.append(docs)
   
   if(type(term2) != type(())):
