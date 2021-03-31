@@ -5,10 +5,18 @@ from search_utils import search, proximity_search
 from boolean_utils import conjunct, disjunct
 from set_utils import complement
 
+'''
+  Recevies: term in the query
+  Returns: True if term is not an operator
+'''
 def is_operand(op):
   operators = ['and', 'or', 'not', '(', ')', '/']
   return op not in operators
 
+'''
+  Recevies: raw query
+  Returns: Postfix notation of query
+'''
 priority = {
   '/': 4,
   'not': 3,
@@ -45,6 +53,10 @@ def get_postfix(infix):
     
   return postfix
 
+'''
+  Recevies: raw query
+  Returns: Documents matching that query
+'''
 punctuation = list(set(string.punctuation))
 punctuation.remove('/')
 punctuation.remove('(')
