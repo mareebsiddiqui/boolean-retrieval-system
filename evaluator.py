@@ -1,5 +1,9 @@
 import query_engine
 
+'''
+  Reads the gold standard and outputs result, 
+  precision and recall for each query
+'''
 with open('./ShortStories.txt', 'r') as f:
   data = f.read().split("\n")
   data = [line for line in data if line]

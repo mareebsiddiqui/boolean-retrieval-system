@@ -1,47 +1,62 @@
 from set_utils import intersect, union
 from search_utils import search
 
-def conjunct(term1, term2):
+'''
+  item: Refers to a list of documents. 
+'''
+
+'''
+  Receives: 2 items
+  Returns: Intersection of the 2 items
+
+  If a term is provided, the item is queried to get a list of documents.
+'''
+def conjunct(item1, item2):
   lists = []
   words = []
 
-  if(type(term1) != type(())):
-    docs, terms = search(term1)
-    words.append(terms)
+  if(type(item1) != type(())):
+    docs, items = search(item1)
+    words.append(items)
     lists.append(docs)
   else:
-    docs, terms = term1
+    docs, items = item1
     lists.append(docs)
   
-  if(type(term2) != type(())):
-    p2, terms = search(term2)
-    words.append(terms)
+  if(type(item2) != type(())):
+    p2, items = search(item2)
+    words.append(items)
     lists.append(p2)
   else:
-    docs, terms = term2
+    docs, items = item2
     lists.append(docs)
 
   return intersect(lists), words
     
+'''
+  Receives: 2 items
+  Returns: Union of the 2 items
 
-def disjunct(term1, term2):
+  If a term is provided, the item is queried to get a list of documents.
+'''
+def disjunct(item1, item2):
   lists = []
   words = []
   
-  if(type(term1) != type(())):
-    p1, terms = search(term1)
-    words.append(terms)
+  if(type(item1) != type(())):
+    p1, items = search(item1)
+    words.append(items)
     lists.append(p1)
   else:
-    docs, terms = term1
+    docs, items = item1
     lists.append(docs)
   
-  if(type(term2) != type(())):
-    p2, terms = search(term2)
-    words.append(terms)
+  if(type(item2) != type(())):
+    p2, items = search(item2)
+    words.append(items)
     lists.append(p2)
   else:
-    docs, terms = term2
+    docs, items = item2
     lists.append(docs)
 
   return union(lists), words

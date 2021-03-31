@@ -1,5 +1,9 @@
 from search_utils import search
 
+'''
+  Recevies: 2 lists of documents
+  Returns: 1 list containing documents which are present in both the lists
+'''
 def intersect_two(l1, l2):
   ptr1 = 0
   ptr2 = 0
@@ -20,6 +24,10 @@ def intersect_two(l1, l2):
   
   return relevant_docs
 
+'''
+  Recevies: list of documents
+  Returns: 1 list containing documents which are present in both the lists
+'''
 def intersect(lists):
   n = len(lists)
   if(n > 1):
@@ -32,6 +40,11 @@ def intersect(lists):
   else:
     return lists[0]
 
+'''
+  Recevies: 2 lists of documents
+  Returns: 1 list containing documents which are present in either 
+           of the lists
+'''
 def union_two(l1, l2):
   ptr1 = 0
   ptr2 = 0
@@ -62,6 +75,11 @@ def union_two(l1, l2):
 
   return relevant_docs
 
+'''
+  Recevies: list of documents
+  Returns: 1 list containing documents which are present in either
+           of the lists
+'''
 def union(lists):
   n = len(lists)
   if(n > 1):
@@ -74,6 +92,10 @@ def union(lists):
   else:
     return lists[0]
 
+'''
+  Recevies: term
+  Returns: All documents in which the term does not appear
+'''
 def complement(term):
   docs = []
   

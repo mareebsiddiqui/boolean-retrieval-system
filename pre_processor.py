@@ -23,9 +23,10 @@ printable = set(string.printable)
 
 '''
   Receives:
-    word,
-    doc_id,
-    i
+    word: word to add to index,
+    doc_id: document to add to against the word,
+    i: position to add against that document,
+    snippet: snippet of text in which that word appears in the document
 
   Algorithm:
   1. Check if word is *
@@ -35,11 +36,11 @@ printable = set(string.printable)
   5. Singularize the word
   6. Check if word is in simple_index
   7. If it is, check if doc_id is already in word's simple_index
-  8. If not, increment document count of word and add document 
+  8. If not, increment document ptr of word and add document 
      object to the word's index and doc_id to word's simple_index
   9. If it is, add i to word's positions in the index
   10. If word is not in simple_index, add doc_id to word's simple_index
-      and document object to word's index. Set document 
+      and document object to word's index. Set doc ptr of word to 0
 '''
 def index_doc(word, doc_id, i, snippet):
   if word == '*':
@@ -71,6 +72,10 @@ def index_doc(word, doc_id, i, snippet):
         }]
         word_doc_ptr[word] = 0
 
+'''
+  Iterate over all documents. Read whole file into a variable and clean it.
+  Call index_doc on each word with len > 3
+'''
 for i in range(1, 51):
   with open(os.path.join(DATASET_DIR, str(i)+'.txt')) as file:
 

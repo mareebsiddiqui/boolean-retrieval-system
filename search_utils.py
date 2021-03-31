@@ -9,6 +9,10 @@ doc_index = None
 with open('./doc_index.json', 'r') as f:
   doc_index = json.load(f)
 
+'''
+  Receives: term
+  Returns: Value against 'term' key in the index
+'''
 def search(term):
   term = singularize(term)
   if term in index:
@@ -16,6 +20,14 @@ def search(term):
   else:
     return [], ""
 
+'''
+  Receives:
+    k: proximity
+    terms: list of terms
+
+  Returns:
+    All documents which have |term[0]-term[1]| <= k
+'''
 def proximity_search(k, terms):
   k += 1
   result = []
@@ -37,7 +49,7 @@ def proximity_search(k, terms):
       pos_pairs = []
       while pos_ptr1 < len(doc1["positions"]):
         while pos_ptr2 < len(doc2["positions"]):
-          if abs(doc1["positions"][pos_ptr1] - doc2["positions"][pos_ptr2]) == k:
+          if abs(doc1["positions"][pos_ptr1] - doc2["positions"][pos_ptr2]) <= k:
             l.append(doc2["positions"][pos_ptr2])
           elif doc2["positions"][pos_ptr2] > doc1["positions"][pos_ptr1]:
             break

@@ -7,6 +7,13 @@ CORS(app)
 
 import query_engine
 
+'''
+    Receives: query: string
+    Returns: {
+        results: documents,
+        search_words: words that matched in the document
+    }
+'''
 @app.route('/query')
 def get_query_results():
     query = request.args.get('query')
@@ -16,6 +23,13 @@ def get_query_results():
         "search_words": search_words
     }
 
+'''
+    Receives: doc_id
+    Returns: {
+        doc_name,
+        doc
+    }
+'''
 @app.route('/document')
 def get_document():
     doc_id = request.args.get('doc_id')
@@ -29,6 +43,10 @@ def get_document():
         "doc": doc
     }
 
+'''
+    Receives: -
+    Returns: index of document ids against document names
+'''
 @app.route('/doc_index')
 def get_doc_index():
     doc_index = {}
