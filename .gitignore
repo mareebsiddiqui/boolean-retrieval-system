@@ -19,9 +19,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-ShortStories.txt
-
 /__pycache__
-evaluator.py
-pre_processor.py
-Stopword-List.txt
